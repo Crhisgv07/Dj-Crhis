@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Inyecta owner/repo en la página
         run: |
-          sed -i "s#OWNER/REPO#${GITHUB_REPOSITORY}#g" site/index.html
+          sed -i "s#Crhisgv07/Dj-Crhis#${GITHUB_REPOSITORY}#g" site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

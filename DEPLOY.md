@@ -11,15 +11,13 @@ Lo único que se publica es:
 ```bash
 cd "dj crhis"
 git init && git add . && git commit -m "CRHIS Cabina"
-gh repo create dj-crhis --private --source=. --push   # o crea el repo a mano
+gh repo create Dj-Crhis --public --source=. --push
 ```
 
-Luego cambia el marcador `OWNER/REPO` por tu usuario/repo en:
-
-- `package.json` → `build.publish[0].owner`
-- `site/index.html` (varias apariciones — el workflow lo hace solo al desplegar)
+El repo ya está en **https://github.com/Crhisgv07/Dj-Crhis**.
 
 En GitHub → **Settings → Pages → Source: GitHub Actions**.
+Cada push a `main` publica la portada; cada tag `v*` publica instaladores.
 
 ## 2. Construir los instaladores
 
@@ -43,8 +41,8 @@ git push --follow-tags       # dispara el workflow con el tag v0.1.0
 
 Al terminar:
 
-- Instaladores en `https://github.com/OWNER/REPO/releases/latest`
-- Página en `https://OWNER.github.io/REPO/` (o tu dominio propio en Pages → Custom domain)
+- Instaladores: https://github.com/Crhisgv07/Dj-Crhis/releases/latest
+- Portada: https://crhisgv07.github.io/Dj-Crhis/
 
 ## 3. Firma de código (opcional, para quitar los avisos)
 

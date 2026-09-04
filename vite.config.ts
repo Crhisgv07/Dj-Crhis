@@ -41,5 +41,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+        cabina: path.resolve(__dirname, "cabina.html"),
+      },
+    },
+  },
   plugins: [react(), ...electronPlugins],
 });

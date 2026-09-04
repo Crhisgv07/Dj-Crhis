@@ -48,9 +48,9 @@ let mainWin: BrowserWindow | null = null;
 
 function loadRenderer(win: BrowserWindow) {
   if (process.env.VITE_DEV_SERVER_URL) {
-    void win.loadURL(process.env.VITE_DEV_SERVER_URL);
+    void win.loadURL(new URL("cabina.html", process.env.VITE_DEV_SERVER_URL).href);
   } else {
-    void win.loadFile(path.join(__dirname, "../dist/index.html"));
+    void win.loadFile(path.join(__dirname, "../dist/cabina.html"));
   }
 }
 
