@@ -7,7 +7,7 @@ telemetría, no requiere cuenta ni activación. Nada sale de tu equipo.
 
 | Medida | Qué hace |
 |---|---|
-| **Electron Fuses** | El binario rechaza `ELECTRON_RUN_AS_NODE`, `NODE_OPTIONS`, `--inspect` y sólo carga el código de la app desde el `app.asar` firmado. |
+| **Electron Fuses** | Requieren electron-builder 26+. En 1.0.0 el binario se publica con contextIsolation, sin Node en el renderer y ASAR. |
 | **Validación de integridad del ASAR** | El paquete `app.asar` lleva hash; si alguien lo modifica, la app no arranca (macOS). |
 | **`contextIsolation` + `sandbox`** | Ni la ventana principal ni la de video pueden tocar Node ni `require`. Toda comunicación pasa por un `preload` que expone sólo lo justo. |
 | **`nodeIntegration: false`** en todas las ventanas | El renderer no tiene acceso al sistema de archivos ni a procesos. |
