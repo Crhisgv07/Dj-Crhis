@@ -1,0 +1,48 @@
+name: Release (mac + windows)
+
+# Empuja un tag `vX.Y.Z` para construir los instaladores y publicarlos en
+# GitHub Releases; también actualiza la página oficial (GitHub Pages).
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build installer
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Sin firmar (no hay certificados). electron-builder publica en el
+          # Release del tag gracias a `publish` en package.json.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+  pages:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inyecta owner/repo en la página
+        run: |
+          sed -i "s#OWNER/REPO#${GITHUB_REPOSITORY}#g" site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4

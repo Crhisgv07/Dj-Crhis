@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' file: data:; media-src 'self' file: blob:;"
+    />
+    <title>CRHIS — Video</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+      }
+      #c {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      video {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #hint {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 14px;
+        text-align: center;
+        color: #5a5a5a;
+        font: 11px "Helvetica Neue", Arial, sans-serif;
+        letter-spacing: 0.22em;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <video id="va" muted playsinline></video>
+    <video id="vb" muted playsinline></video>
+    <div id="hint">CRHIS · SALIDA DE VIDEO</div>
+    <script>
+      const api = window.crhisVideo;
+      const c = document.getElementById("c");
+      const ctx = c.getContext("2d");
+      const va = document.getElementById("va");
+      const vb = document.getElementById("vb");
+      const hint = document.getElementById("hint");
+      let prog = { crossfader: 0.5, fx: "none", fxAmount: 0.5, a: null, b: null };
+
+      function fit() {
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+      }
+      window.addEventListener("resize", fit);
+      fit();
+
+      function setSrc(el, url) {
+        if (url && el.src !== url) {
+          el.src = url;
+          el.load();
+        } else if (!url && el.src) {
+          el.removeAttribute("src");
+          el.load();
+        }
+      }
+      function syncEl(el, d) {
+        if (!d || !el.src) return;
+        if (Number.isFinite(d.rate) && Math.abs(el.playbackRate - d.rate) > 0.001) {
+          try {
+            el.playbackRate = d.rate;
+          } catch (e) {}
+        }
+        if (Number.isFinite(d.time) && Math.abs(el.currentTime - d.time) > 0.3) {
+          try {
+            el.currentTime = d.time;
+          } catch (e) {}
+        }
+        if (d.paused && !el.paused) el.pause();
+        if (!d.paused && el.paused) el.play().catch(() => {});
+      }
+
+      if (api) {
+        api.onSrc((s) => {
+          setSrc(va, s.a);
+          setSrc(vb, s.b);
+          if (s.a || s.b) hint.style.display = "none";
+        });
+        api.onSync((p) => {
+          if (!p) return;
+          prog = p;
+          syncEl(va, p.a);
+          syncEl(vb, p.b);
+        });
+      }
+
+      function drawEl(el, alpha) {
+        if (!el.videoWidth || alpha <= 0.002) return;
+        const s = Math.min(c.width / el.videoWidth, c.height / el.videoHeight);
+        const w = el.videoWidth * s;
+        const h = el.videoHeight * s;
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(el, (c.width - w) / 2, (c.height - h) / 2, w, h);
+      }
+
+      function loop() {
+        ctx.globalAlpha = 1;
+        ctx.filter = "none";
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, c.width, c.height);
+
+        const xf = typeof prog.crossfader === "number" ? prog.crossfader : 0.5;
+        const amt = typeof prog.fxAmount === "number" ? prog.fxAmount : 0.5;
+        const fx = prog.fx || "none";
+
+        let filter = "none";
+        if (fx === "invert") filter = `invert(${amt})`;
+        else if (fx === "mono") filter = `grayscale(${amt}) contrast(${1 + amt * 0.3})`;
+        else if (fx === "hue") filter = `hue-rotate(${Math.round(amt * 360)}deg) saturate(${1 + amt})`;
+        ctx.filter = filter;
+
+        drawEl(va, 1 - xf);
+        drawEl(vb, xf);
+        ctx.filter = "none";
+        ctx.globalAlpha = 1;
+
+        if (fx === "rgb" && amt > 0.02) {
+          const o = Math.round(amt * 24);
+          ctx.globalCompositeOperation = "screen";
+          ctx.globalAlpha = 0.5;
+          ctx.drawImage(c, o, 0);
+          ctx.drawImage(c, -o, 0);
+          ctx.globalCompositeOperation = "source-over";
+          ctx.globalAlpha = 1;
+        }
+        if (fx === "mirror") {
+          ctx.save();
+          ctx.translate(c.width, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(c, 0, 0, c.width / 2, c.height, 0, 0, c.width / 2, c.height);
+          ctx.restore();
+        }
+
+        requestAnimationFrame(loop);
+      }
+      loop();
+    </script>
+  </body>
+</html>
