@@ -1,7 +1,6 @@
 name: Release (mac + windows)
 
-# Empuja un tag `vX.Y.Z` para construir los instaladores y publicarlos en
-# GitHub Releases; también actualiza la página oficial (GitHub Pages).
+# Un tag vX.Y.Z construye los instaladores y crea el GitHub Release.
 on:
   push:
     tags:
@@ -9,14 +8,17 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
+        include:
+          - os: macos-latest
+            dist: dist:mac
+          - os: windows-latest
+            dist: dist:win
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -26,23 +28,47 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Build installer
-        run: npm run dist
+        run: npm run ${{ matrix.dist }} -- --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Sin firmar (no hay certificados). electron-builder publica en el
-          # Release del tag gracias a `publish` en package.json.
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            release/*.dmg
+            release/*.exe
+            release/*.zip
 
-  pages:
+  release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Inyecta owner/repo en la página
-        run: |
-          sed -i "s#Crhisgv07/Dj-Crhis#${GITHUB_REPOSITORY}#g" site/index.html
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          path: site
-      - uses: actions/deploy-pages@v4
+          path: dist-installers
+          merge-multiple: true
+      - name: Publicar GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: CRHIS Cabina ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: dist-installers/*
+          body: |
+            Primera versión pública de **CRHIS Cabina**, el software DJ de escritorio para Mac y Windows.
+
+            ## Descargas
+            - **Mac Apple Silicon** — `CRHIS-Cabina-*-mac-arm64.dmg`
+            - **Mac Intel** — `CRHIS-Cabina-*-mac-x64.dmg`
+            - **Windows 10/11 64-bit** — `CRHIS-Cabina-*-win-x64.exe`
+
+            Portada: https://crhisgv07.github.io/Dj-Crhis/
+
+            ## Cómo instalar (sin firma de código todavía)
+
+            **Mac:** abre el `.dmg`, arrastra CRHIS Cabina a Aplicaciones. Si Gatekeeper bloquea: clic derecho → Abrir → Abrir. También: Ajustes → Privacidad y seguridad → Abrir de todas formas.
+
+            **Windows:** ejecuta el `.exe`. Si SmartScreen aparece: Más información → Ejecutar de todas formas.
+
+            La app es 100% local: sin cuenta, sin nube y sin telemetría.

@@ -151,9 +151,12 @@
           </a>
         </div>
         <p class="note">
-          Gratis. Los instaladores salen de
-          <a href="https://github.com/Crhisgv07/Dj-Crhis/releases">GitHub Releases</a>.
-          Si aún no hay un release publicado, el botón abre la página de descargas.
+          Gratis · v1.0.0 ·
+          <a href="https://github.com/Crhisgv07/Dj-Crhis/releases/latest">GitHub Releases</a>
+          · <a id="dl-mac-intel" href="https://github.com/Crhisgv07/Dj-Crhis/releases/latest">Mac Intel (.dmg)</a>
+        </p>
+        <p class="note">
+          Mac: si Gatekeeper bloquea, clic derecho → Abrir. Windows: SmartScreen → Más información → Ejecutar de todas formas.
         </p>
 
         <div class="shot" aria-label="Vista de CRHIS Cabina">
@@ -212,9 +215,11 @@
               var a = rel.assets.filter(function (x) { return re.test(x.name); })[0];
               return a && a.browser_download_url;
             }
-            var mac = find(/mac-arm64\.dmg$/) || find(/mac-x64\.dmg$/) || find(/\.dmg$/);
+            var macArm = find(/mac-arm64\.dmg$/) || find(/\.dmg$/);
+            var macIntel = find(/mac-x64\.dmg$/);
             var win = find(/win-x64.*\.exe$/) || find(/\.exe$/);
-            if (mac) document.getElementById("dl-mac").href = mac;
+            if (macArm) document.getElementById("dl-mac").href = macArm;
+            if (macIntel) document.getElementById("dl-mac-intel").href = macIntel;
             if (win) document.getElementById("dl-win").href = win;
           })
           .catch(function () {});

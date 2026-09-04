@@ -1,24 +1,30 @@
 # CRHIS Cabina
 
-Software DJ de escritorio para **Mac** y **Windows**.
+Software DJ de escritorio para **Mac** y **Windows**. Dos decks, mixer, MIDI, biblioteca local. Sin cuenta y sin nube.
 
-## Portada (descargas)
+## Descargar
 
-Esta es la página de presentación, como Serato o Virtual DJ: logo, captura y botones **Descargar para Mac** / **Descargar para Windows**.
+- Portada: https://crhisgv07.github.io/Dj-Crhis/
+- Release: https://github.com/Crhisgv07/Dj-Crhis/releases/latest
+- **Mac Apple Silicon** → `.dmg` `mac-arm64`
+- **Mac Intel** → `.dmg` `mac-x64`
+- **Windows 10/11** → instalador `.exe` `win-x64`
 
-- Archivo: `index.html` (también `site/index.html` para GitHub Pages)
-- En el navegador: abre `index.html` o corre `npm run dev:site` y ve a [http://localhost:5173](http://localhost:5173)
-- En línea: https://crhisgv07.github.io/Dj-Crhis/ (activa GitHub Pages: Settings → Pages → GitHub Actions)
-- Instaladores: https://github.com/Crhisgv07/Dj-Crhis/releases/latest
+### Primera apertura (aún no está firmado)
 
-Hasta que no haya un release con tag `v0.1.0` (u otro `v*`), los botones abren la página de Releases.
+- **Mac:** clic derecho en CRHIS Cabina → Abrir → Abrir. O Ajustes → Privacidad y seguridad → Abrir de todas formas.
+- **Windows:** SmartScreen → Más información → Ejecutar de todas formas.
 
-## La cabina (app)
-
-Electron abre `cabina.html`, no la portada. El texto negro **CRHIS** es solo la pantalla de arranque de la app.
+## Desarrollo
 
 ```bash
 npm install
 npm run dev          # cabina en Electron
-npm run dev:site     # solo la portada en el navegador
+npm run dev:site     # portada en http://localhost:5173
 ```
+
+La portada es `index.html`. Electron abre `cabina.html`.
+
+## Publicar
+
+Ver `DEPLOY.md`. Un tag `v1.0.0` dispara GitHub Actions: instaladores de Mac y Windows + GitHub Release.
